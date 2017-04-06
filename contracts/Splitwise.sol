@@ -2,7 +2,7 @@ pragma solidity ^0.4.0;
 
 contract Splitwise {
     mapping(address => mapping (address => uint256)) public debts;
-    mapping(address => address[]) debtors;
+    mapping(address => address[]) public debtors;
 
     function addDebt(address from, address to, uint256 amount) {
         // There is an existing deb (to -> from that exceeds the new debt (from -> to)
@@ -14,7 +14,11 @@ contract Splitwise {
             amount -= debts[to][from];
             debts[to][from] = 0;
 
-            //
+            int256 toFromIndex = getDebtorIndex(to, from);
+
+            if (toFromIndex > -1) {
+                delete debtors[to][uint256(toFromIndex)];
+            }
 
             /*
             uint256 i = 0;
@@ -25,11 +29,11 @@ contract Splitwise {
             }
             */
 
-            //
+            if (getDebtorIndex(from, to) == -1) {
+                debtors[from].push(to);
+            }
 
             debts[from][to] += amount;
-
-            debtors[from].push(to);
         }
     }
 
@@ -41,6 +45,10 @@ contract Splitwise {
         }
 
         return -1;
+    }
+
+    function getDebtors(address from) constant returns (address[]) {
+        return debtors[from];
     }
 
     function settle() {
