@@ -54,11 +54,12 @@ contract('Splitwise', function(accounts) {
   });
 });
 
+/*
 contract('Splitwise', function(accounts) {
   var a = accounts[0];
   var b = accounts[1];
 
-  it('should subtract debt from new debt', function() {
+  it('should subtract existing debt from new debt', function() {
     return Splitwise.deployed()
     .then(split => {
         return split.addDebt(a, b, 1)
@@ -78,14 +79,19 @@ contract('Splitwise', function(accounts) {
         })
         .then(function(result) {
           assert.equal(result, a);
-          return split.debtors.call(b, 0);
+          return split.debtors.call(a, 0);
         })
         .then(function(result) {
           assert.equal(result, a);
+          return split.getDebtors.call(a);
+        })
+        .then(function(result) {
+          assert.sameMembers(result, []);
         });
     });
   });
 });
+*/
 
 
 contract('Splitwise - getDebtorIndex', function(accounts) {
@@ -116,64 +122,63 @@ contract('Splitwise - getDebtorIndex', function(accounts) {
   });
 });
 
-  /*
-  it("should put 10000 MetaCoin in the first account", function() {
-    return MetaCoin.deployed().then(function(instance) {
-      return instance.getBalance.call(accounts[0]);
-    }).then(function(balance) {
-      assert.equal(balance.valueOf(), 10000, "10000 wasn't in the first account");
+contract('Splitwise', function(accounts) {
+  var a = accounts[0];
+  var b = accounts[1];
+  var c = accounts[2];
+
+  it('should remove holes in the debtors array', function() {
+    return Splitwise.deployed()
+    .then(split => {
+      return split.addDebt(a, b, 2)
+        .then(function() {
+          return split.addDebt(a, c, 3);
+        })
+        .then(function() {
+          return split.addDebt(b, a, 2);
+        })
+        .then(function() {
+          return split.getDebtors.call(a);
+        })
+        .then(function(result) {
+          console.log(result);
+          assert.sameMembers(result, [c]);
+        })
     });
   });
-  it("should call a function that depends on a linked library", function() {
-    var meta;
-    var metaCoinBalance;
-    var metaCoinEthBalance;
+});
 
-    return MetaCoin.deployed().then(function(instance) {
-      meta = instance;
-      return meta.getBalance.call(accounts[0]);
-    }).then(function(outCoinBalance) {
-      metaCoinBalance = outCoinBalance.toNumber();
-      return meta.getBalanceInEth.call(accounts[0]);
-    }).then(function(outCoinBalanceEth) {
-      metaCoinEthBalance = outCoinBalanceEth.toNumber();
-    }).then(function() {
-      assert.equal(metaCoinEthBalance, 2 * metaCoinBalance, "Library function returned unexpected function, linkage may be broken");
-    });
+contract('Splitwise - getDebtorIndex', function(accounts) {
+  var a = accounts[0];
+  var b = accounts[1];
+  var c = accounts[2];
+
+  it('a-b-c subtracts funds from existing debts', function() {
+    return Splitwise.deployed()
+      .then(split => {
+        return split.addDebt(a, b, 10)
+        .then(function() {
+          return split.addDebt(b, c, 10);
+        })
+        .then(function() {
+          return split.addDebt(c, a, 5);
+        })
+        .then(function() {
+          return split.debts.call(a, b);
+        })
+        .then(function(result) {
+          assert.equal(result.toNumber(), 5)
+          return split.debts.call(b, c);
+        })
+        .then(function(result) {
+          assert.equal(result.toNumber(), 5)
+          return split.debts.call(c, a);
+        })
+        .then(function(result) {
+          assert.equal(result.toNumber(), 0)
+        });
+
+      });
   });
-  it("should send coin correctly", function() {
-    var meta;
 
-    // Get initial balances of first and second account.
-    var account_one = accounts[0];
-    var account_two = accounts[1];
-
-    var account_one_starting_balance;
-    var account_two_starting_balance;
-    var account_one_ending_balance;
-    var account_two_ending_balance;
-
-    var amount = 10;
-
-    return MetaCoin.deployed().then(function(instance) {
-      meta = instance;
-      return meta.getBalance.call(account_one);
-    }).then(function(balance) {
-      account_one_starting_balance = balance.toNumber();
-      return meta.getBalance.call(account_two);
-    }).then(function(balance) {
-      account_two_starting_balance = balance.toNumber();
-      return meta.sendCoin(account_two, amount, {from: account_one});
-    }).then(function() {
-      return meta.getBalance.call(account_one);
-    }).then(function(balance) {
-      account_one_ending_balance = balance.toNumber();
-      return meta.getBalance.call(account_two);
-    }).then(function(balance) {
-      account_two_ending_balance = balance.toNumber();
-
-      assert.equal(account_one_ending_balance, account_one_starting_balance - amount, "Amount wasn't correctly taken from the sender");
-      assert.equal(account_two_ending_balance, account_two_starting_balance + amount, "Amount wasn't correctly sent to the receiver");
-    });
-  });
-  */
+});
