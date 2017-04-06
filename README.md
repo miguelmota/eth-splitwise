@@ -6,7 +6,7 @@
 
 ```bash
 truffle test
-``
+```
 
 ## Resources
 
