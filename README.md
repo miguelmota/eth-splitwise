@@ -1,6 +1,6 @@
 # eth-splitwise
 
-> Playing around with [Solidity](https://solidity.readthedocs.io/). [Splitwise](https://www.splitwise.com/) "clone" for [Ethereum](https://www.ethereum.org/.
+> Playing around with [Solidity](https://solidity.readthedocs.io/). [Splitwise](https://www.splitwise.com/) "clone" for [Ethereum](https://www.ethereum.org/).
 
 ## Test
 
